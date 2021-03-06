@@ -1,0 +1,113 @@
+A valid encoding of an array of words is any reference string s and array of indices indices such that:
+
+words.length == indices.length
+The reference string s ends with the '#' character.
+For each index indices[i], the substring of s starting from indices[i] and up to (but not including) the next '#' character is equal to words[i].
+Given an array of words, return the length of the shortest reference string s possible of any valid encoding of words.
+
+ 
+
+Example 1:
+
+Input: words = ["time", "me", "bell"]
+Output: 10
+Explanation: A valid encoding would be s = "time#bell#" and indices = [0, 2, 5].
+words[0] = "time", the substring of s starting from indices[0] = 0 to the next '#' is underlined in "time#bell#"
+words[1] = "me", the substring of s starting from indices[1] = 2 to the next '#' is underlined in "time#bell#"
+words[2] = "bell", the substring of s starting from indices[2] = 5 to the next '#' is underlined in "time#bell#"
+Example 2:
+
+Input: words = ["t"]
+Output: 2
+Explanation: A valid encoding would be s = "t#" and indices = [0].
+
+ 
+
+Constraints:
+
+1 <= words.length <= 2000
+1 <= words[i].length <= 7
+words[i] consists of only lowercase letters.
+
+//cpp my solution
+
+
+class TrieNode {
+public:
+    // Initialize your data structure here.
+    bool is_word;
+    TrieNode *children[26];
+    
+    TrieNode() {
+        is_word = false;
+        
+        for (int i = 0; i < 26; i++)
+            children[i] = NULL;
+    }
+};
+
+class Trie {
+public:
+    Trie() {
+        root = new TrieNode();
+    }
+
+    // Inserts a word into the trie.
+    void insert(string word) {
+        int word_len = word.length();
+        int k = 0;
+        TrieNode *cur = root;
+        
+        for (int i = 0; i < word_len; i++){
+            k = word[i] - 'a';
+            
+            if (cur->children[k] == NULL)
+                cur->children[k] = new TrieNode();
+            
+            cur = cur->children[k];
+        }
+        
+        cur->is_word = true;
+    }
+
+    // Returns if the word is in the trie.
+    bool search(string word) {
+        int word_len = word.length();
+        int k = 0;
+        TrieNode *cur = root;
+        
+        for (int i = 0; i < word_len; i++){
+            k = word[i] - 'a';
+            cur = cur->children[k];
+            
+            if (cur == NULL)    return false;
+        }
+        
+        return true;
+    }
+
+private:
+    TrieNode* root;
+};
+
+class Solution {
+    int len=0;
+    Trie t;    
+public:
+    static bool comp(string &a,string &b){
+        return (int)a.length()>(int)b.length();
+    }
+    int minimumLengthEncoding(vector<string>& w) {
+        sort(w.begin(),w.end(),comp);
+        for(auto v:w){
+            string tmp(v);
+            reverse(tmp.begin(), tmp.end());
+            if(!t.search(tmp)){
+                t.insert(tmp);
+                len+=tmp.length()+1;
+            }
+        }
+        
+        return len;
+    }
+};
